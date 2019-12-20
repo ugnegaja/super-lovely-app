@@ -3,39 +3,31 @@ import {Button, Text, View} from 'native-base';
 import {TouchableOpacity} from 'react-native';
 import styles from '../styles/styles';
 import Video from 'react-native-video';
-import {LOVELY_FRAZES} from '../constants/constants';
 import FloatingHearts from 'react-native-floating-hearts';
 import LinearGradient from 'react-native-linear-gradient';
+import PropTypes from 'prop-types';
+import {bindActionCreators} from 'redux';
+import connect from 'react-redux/lib/connect/connect';
+import randomSweetPhrase from '../actions/random-sweet-phrase';
+import clearState from '../actions/clear-state';
 
-export default class SweetScreen extends Component {
+class SweetScreen extends Component {
   static navigationOptions = {
     title: 'Kai tiesiog reikia meilės',
   };
   state = {
-    currentFraze: '',
     count: 0,
-    background: ['#ffffff00', '#ffffff00', '#ffffff00'],
   };
 
-  randomSweetFraze = () => {
-    const {count} = this.state;
-    const {currentFraze} = this.state;
-    for (var i = 0; i < LOVELY_FRAZES.length; i++) {
-      const randomInspiration =
-        LOVELY_FRAZES[Math.floor(Math.random() * LOVELY_FRAZES.length)];
-      if (currentFraze != randomInspiration) {
-        this.setState({
-          currentFraze: randomInspiration,
-          count: count + 3,
-          background: ['#c88597bd', '#b98b9bbf', '#c88597bd'],
-        });
-      } else {
-        continue;
-      }
-    }
-  };
+  componentWillUnmount() {
+      const { clearState } = this.props;
+      clearState();
+  }
 
-  render() {
+    render() {
+    const { randomSweetPhrase } = this.props;
+    const { background } = this.props;
+    const { currentSweetPhrase } = this.props;
     const {count} = this.state;
     return (
       <TouchableOpacity
@@ -58,17 +50,35 @@ export default class SweetScreen extends Component {
           light
           transparent
           rounded
-          onPress={this.randomSweetFraze}
+          onPress={() => {randomSweetPhrase(currentSweetPhrase); this.setState({count: count + 3})}}
           style={styles.questionButton}>
           <Text style={styles.menuTitle}>Sužinoti</Text>
         </Button>
         <LinearGradient
           style={styles.linearGradient}
-          colors={this.state.background}>
-          <Text style={styles.answerText}>{this.state.currentFraze}</Text>
+          colors={background}>
+          <Text style={styles.answerText}>{currentSweetPhrase}</Text>
         </LinearGradient>
         <FloatingHearts count={count} color={'white'} />
       </TouchableOpacity>
     );
   }
 }
+
+SweetScreen.propTypes = {
+    randomSweetPhrase: PropTypes.func.isRequired,
+    clearState: PropTypes.func.isRequired,
+    currentPhrase: PropTypes.shape({ currentSweetPhrase: PropTypes.string, background: PropTypes.arrayOf(PropTypes.string) }),
+};
+
+const mapStateToProps = (state) => {
+    const { currentPhrase } = state;
+    return currentPhrase;
+};
+
+const mapDispatchToProps = dispatch => ({
+    randomSweetPhrase: bindActionCreators(randomSweetPhrase, dispatch),
+    clearState: bindActionCreators(clearState, dispatch),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(SweetScreen);
