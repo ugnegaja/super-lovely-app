@@ -2,57 +2,71 @@ import React, {Component} from 'react';
 import {Button, Text, View} from 'native-base';
 import {ImageBackground} from 'react-native';
 import styles from '../styles/styles';
-import {COMPLIMENT_IMAGE, INSPIRE_FRAZES} from '../constants/constants';
 import LinearGradient from 'react-native-linear-gradient';
+import PropTypes from 'prop-types';
+import {bindActionCreators} from 'redux';
+import connect from 'react-redux/lib/connect/connect';
+import randomInspirationPhrase from '../actions/random-inspiration-phrase';
+import clearState from '../actions/clear-state';
 
-export default class ComplimentScreen extends Component {
-  state = {
-    currentFraze: '',
-    currentImage: COMPLIMENT_IMAGE,
-    background: ['#ffffff00', '#ffffff00', '#ffffff00'],
-  };
-
-  randomSweetFraze = () => {
-    const {currentFraze} = this.state;
-    for (var i = 0; i < INSPIRE_FRAZES.length; i++) {
-      const randomInspiration =
-        INSPIRE_FRAZES[Math.floor(Math.random() * INSPIRE_FRAZES.length)];
-
-      if (currentFraze != randomInspiration.fraze) {
-        this.setState({
-          currentFraze: randomInspiration.fraze,
-          currentImage: randomInspiration.image,
-          background: ['#c88597bd', '#b98b9bbf', '#c88597bd'],
-        });
-        break;
-      } else {
-        continue;
-      }
-    }
-  };
+class ComplimentScreen extends Component {
+  componentWillUnmount() {
+    const {clearState} = this.props;
+    clearState();
+  }
 
   render() {
+    const {randomInspirationPhrase} = this.props;
+    const {background} = this.props;
+    const {currentInspirationPhrase} = this.props;
+    const {currentInspirationImage} = this.props;
     return (
       <ImageBackground
-        source={this.state.currentImage}
+        source={currentInspirationImage}
         style={styles.complimentScreen}
-        onPress={this.randomSweetFraze}>
+        onPress={randomInspirationPhrase}>
         <Button
           bordered
           light
           transparent
           rounded
-          onPress={this.randomSweetFraze}
+          onPress={() => randomInspirationPhrase(currentInspirationPhrase)}
           style={styles.inspirationButton}>
           <Text style={styles.menuTitle}>Gauti įkvėpimo</Text>
         </Button>
         <View style={styles.separator} />
-        <LinearGradient
-          style={styles.linearGradient}
-          colors={this.state.background}>
-          <Text style={styles.answerText}>{this.state.currentFraze}</Text>
+        <LinearGradient style={styles.linearGradient} colors={background}>
+          <Text style={styles.answerText}>{currentInspirationPhrase}</Text>
         </LinearGradient>
       </ImageBackground>
     );
   }
 }
+
+ComplimentScreen.propTypes = {
+  randomInspirationPhrase: PropTypes.func.isRequired,
+  clearState: PropTypes.func.isRequired,
+  currentInspiration: PropTypes.shape({
+    currentInspirationPhrase: PropTypes.string,
+    background: PropTypes.arrayOf(PropTypes.string),
+    currentInspirationImage: PropTypes.string,
+  }),
+};
+
+const mapStateToProps = state => {
+  const {currentInspiration} = state;
+  return currentInspiration;
+};
+
+const mapDispatchToProps = dispatch => ({
+  randomInspirationPhrase: bindActionCreators(
+    randomInspirationPhrase,
+    dispatch,
+  ),
+  clearState: bindActionCreators(clearState, dispatch),
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(ComplimentScreen);
