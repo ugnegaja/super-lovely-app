@@ -20,14 +20,14 @@ class SweetScreen extends Component {
   };
 
   componentWillUnmount() {
-      const { clearState } = this.props;
-      clearState();
+    const {clearState} = this.props;
+    clearState();
   }
 
-    render() {
-    const { randomSweetPhrase } = this.props;
-    const { background } = this.props;
-    const { currentSweetPhrase } = this.props;
+  render() {
+    const {randomSweetPhrase} = this.props;
+    const {background} = this.props;
+    const {currentSweetPhrase} = this.props;
     const {count} = this.state;
     return (
       <TouchableOpacity
@@ -50,13 +50,14 @@ class SweetScreen extends Component {
           light
           transparent
           rounded
-          onPress={() => {randomSweetPhrase(currentSweetPhrase); this.setState({count: count + 3})}}
+          onPress={() => {
+            randomSweetPhrase(currentSweetPhrase);
+            this.setState({count: count + 3});
+          }}
           style={styles.questionButton}>
           <Text style={styles.menuTitle}>Sužinoti</Text>
         </Button>
-        <LinearGradient
-          style={styles.linearGradient}
-          colors={background}>
+        <LinearGradient style={styles.linearGradient} colors={background}>
           <Text style={styles.answerText}>{currentSweetPhrase}</Text>
         </LinearGradient>
         <FloatingHearts count={count} color={'white'} />
@@ -66,19 +67,25 @@ class SweetScreen extends Component {
 }
 
 SweetScreen.propTypes = {
-    randomSweetPhrase: PropTypes.func.isRequired,
-    clearState: PropTypes.func.isRequired,
-    currentPhrase: PropTypes.shape({ currentSweetPhrase: PropTypes.string, background: PropTypes.arrayOf(PropTypes.string) }),
+  randomSweetPhrase: PropTypes.func.isRequired,
+  clearState: PropTypes.func.isRequired,
+  currentPhrase: PropTypes.shape({
+    currentSweetPhrase: PropTypes.string,
+    background: PropTypes.arrayOf(PropTypes.string),
+  }),
 };
 
-const mapStateToProps = (state) => {
-    const { currentPhrase } = state;
-    return currentPhrase;
+const mapStateToProps = state => {
+  const {currentPhrase} = state;
+  return currentPhrase;
 };
 
 const mapDispatchToProps = dispatch => ({
-    randomSweetPhrase: bindActionCreators(randomSweetPhrase, dispatch),
-    clearState: bindActionCreators(clearState, dispatch),
+  randomSweetPhrase: bindActionCreators(randomSweetPhrase, dispatch),
+  clearState: bindActionCreators(clearState, dispatch),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(SweetScreen);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(SweetScreen);

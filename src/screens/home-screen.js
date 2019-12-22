@@ -65,8 +65,8 @@ export default class HomeScreen extends Component {
   render() {
     return (
       <>
-        {this.mainMenu.map((itemProps, index) => {
-          const params = {index, ...itemProps};
+        {this.mainMenu.map((itemProps, key) => {
+          const params = {key, ...itemProps};
           return new MenuCard(params);
         })}
       </>
